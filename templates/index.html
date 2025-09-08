@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head><title>Guess Game Home</title></head>
+<body>
+  <h1>Welcome to the Guessing Game</h1>
+  <ul>
+    {% for key, mode in modes.items() %}
+      <li><a href="{{ url_for('start_game', mode=key) }}">{{ mode.name }} Mode</a></li>
+    {% endfor %}
+  </ul>
+  <p><a href="{{ url_for('login') }}">Login</a> | <a href="{{ url_for('register') }}">Register</a> | <a href="{{ url_for('guest_mode') }}">Play as Guest</a></p>
+  <p><a href="{{ url_for('leaderboard_page') }}">Leaderboard</a> | <a href="{{ url_for('profile') }}">Your Profile</a></p>
+</body>
+</html>
