@@ -1,0 +1,132 @@
+/* static/style.css */
+
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to right, #f4f1ff, #e6e9ff);
+  color: #333;
+  padding: 20px;
+  line-height: 1.6;
+}
+
+h1, h2, h3 {
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Buttons */
+button {
+  padding: 10px 20px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+/* Forms */
+input[type="text"], input[type="password"], input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+form {
+  margin-bottom: 20px;
+}
+
+/* Messages (Flash) */
+ul {
+  color: red;
+  list-style-type: none;
+  margin-bottom: 20px;
+}
+
+/* Game Board */
+.game-info p {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.hint {
+  background-color: #fff8e1;
+  padding: 10px;
+  border-left: 4px solid #ffc107;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+.feedback {
+  font-weight: bold;
+  color: #e74c3c;
+}
+
+/* Leaderboard & Profile */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+/* Responsive Layout */
+@media (max-width: 600px) {
+  .container {
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  button, input {
+    font-size: 0.9rem;
+  }
+}
