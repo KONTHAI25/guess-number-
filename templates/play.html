@@ -1,13 +1,39 @@
 <!DOCTYPE html>
 <html>
-<head><title>Leaderboard</title></head>
+<head><title>Play Game</title></head>
 <body>
-  <h2>Leaderboard</h2>
-  <ol>
-    {% for entry in scores %}
-      <li>{{ entry.name }} - {{ entry.score }}</li>
-    {% endfor %}
-  </ol>
-  <a href="{{ url_for('home') }}">Back to Home</a>
+  <h2>{{ mode }} Mode</h2>
+  <p>Range: {{ range_limit[0] }} - {{ range_limit[1] }}</p>
+  <p>Guesses left: {{ guesses_left }}</p>
+  
+  {% if hint %}
+    <p>💡 Hint: {{ hint }}</p>
+  {% endif %}
+  
+  {% if feedback %}
+    <p><strong>{{ feedback }}</strong></p>
+  {% endif %}
+  
+  {% if not game_over %}
+    <form method="POST">
+      <input type="number" name="guess" placeholder="Enter your guess" required>
+      <button type="submit" name="action" value="guess">Guess</button>
+      {% if not hint %}
+        <button type="submit" name="action" value="hint">Use Hint (-10 pts)</button>
+      {% endif %}
+    </form>
+  {% else %}
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <p><strong>{{ message }}</strong></p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <p><a href="{{ url_for('home') }}">Play Again</a></p>
+    <p><a href="{{ url_for('profile') }}">View Profile</a></p>
+  {% endif %}
+  
+  <p><a href="{{ url_for('home') }}">Back to Home</a></p>
 </body>
 </html>

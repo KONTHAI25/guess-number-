@@ -1,25 +1,22 @@
 <!DOCTYPE html>
 <html>
-<head><title>Play Game</title></head>
+<head><title>Register</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
 <body>
-  <h2>{{ mode }} Mode</h2>
-  <p>Guesses left: {{ guesses_left }}</p>
-  {% if hint %}
-    <p>💡 Hint: {{ hint }}</p>
-  {% endif %}
-  {% if feedback %}
-    <p>{{ feedback }}</p>
-  {% endif %}
-  {% if not game_over %}
-    <form method="POST">
-      <input type="number" name="guess" placeholder="Enter your guess" required>
-      <button type="submit" name="action" value="guess">Guess</button>
-      {% if not hint_used %}
-        <button type="submit" name="action" value="hint">Use Hint (-10 pts)</button>
-      {% endif %}
-    </form>
-  {% else %}
-    <p><a href="{{ url_for('profile') }}">View Profile</a></p>
-  {% endif %}
+  <h2>Register</h2>
+  <form method="POST">
+    <input type="text" name="username" placeholder="Username (1-20 chars)" required><br><br>
+    <input type="password" name="password" placeholder="Password (6 digits)" required><br><br>
+    <button type="submit">Register</button>
+  </form>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
 </body>
 </html>
