@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Guessing Game</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <h1 class="site-title">Guessing Game</h1>
+    <nav class="top-nav" aria-label="User menu">
+      {% if session.get('user_id') or session.get('is_guest') %}
+        <span class="player-label" style="display:inline-block; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+          Player:&nbsp;<strong>
+            {% if session.get('user_id') %}
+              {{ session.get('username') }}
+            {% else %}
+              {{ session.get('guest_name') }}
+            {% endif %}
+          </strong>
+        </span>
+        <a href="{{ url_for('profile') }}">Profile</a>
+        <a href="{{ url_for('leaderboard') }}">Leaderboard</a>
+        <a href="{{ url_for('chat') }}">Chat</a>
+        <a href="{{ url_for('logout') }}">Logout / Switch</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+
+<main class="wrap main-content">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flash">
+        {% for cat, msg in messages %}
+          <li class="{{ cat }}">{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  {% if session.get('user_id') or session.get('is_guest') %}
+    <section class="card mode-card-stack">
+      <h2 class="section-title">Start a new game</h2>
+      <form action="{{ url_for('new_game') }}" method="post" class="mode-form" aria-label="Start new game">
+        <div class="modes-vertical">
+          <div class="mode-option">
+            <input type="radio" id="mode-easy" name="mode" value="easy" checked>
+            <label for="mode-easy" class="mode-tile easy">
+              <div class="mode-left">
+                <div class="mode-name">Easy</div>
+                <div class="mode-range">Range 1–100</div>
+              </div>
+              <div class="mode-right">
+                <div class="mode-meta">Attempts: 10</div>
+                <div class="mode-meta small">−{{ modes['easy']['base_per_turn_penalty'] }} per guess</div>
+                <div class="mode-meta small">Start: 10,000 pts</div>
+              </div>
+            </label>
+          </div>
+          <div class="mode-option">
+            <input type="radio" id="mode-medium" name="mode" value="medium">
+            <label for="mode-medium" class="mode-tile medium">
+              <div class="mode-left">
+                <div class="mode-name">Medium</div>
+                <div class="mode-range">Range 1–1000</div>
+              </div>
+              <div class="mode-right">
+                <div class="mode-meta">Attempts: 14</div>
+                <div class="mode-meta small">−{{ modes['medium']['base_per_turn_penalty'] }} per guess</div>
+                <div class="mode-meta small">Start: 10,000 pts</div>
+              </div>
+            </label>
+            
+          </div>
+          <div class="mode-option">
+            <input type="radio" id="mode-hard" name="mode" value="hard">
+            <label for="mode-hard" class="mode-tile hard">
+              <div class="mode-left">
+                <div class="mode-name">Hard</div>
+                <div class="mode-range">Range 1–10000</div>
+              </div>
+              <div class="mode-right">
+                <div class="mode-meta">Attempts: 18</div>
+                <div class="mode-meta small">−{{ modes['hard']['base_per_turn_penalty'] }} per guess</div>
+                <div class="mode-meta small">Start: 10,000 pts</div>
+              </div>
+            </label>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn start-btn">Start Game</button>
+        </div>
+      </form>
+    </section>
+    {% if session.get('game') and session.get('game')['status'] == 'playing' %}
+      <section class="card continue-card">
+        <a class="btn continue-btn" href="{{ url_for('play') }}">Continue Current Game</a>
+      </section>
+    {% endif %}
+  {% else %}
+    <section class="card welcome-card">
+      <h2>ดีครับพี่!</h2>
+      <p>Please select an option to continue.</p>
+      <div class="option-grid">
+        <a class="option-box" href="{{ url_for('login') }}">Login</a>
+        <a class="option-box" href="{{ url_for('guest') }}">Play as Guest</a>
+        <a class="option-box" href="{{ url_for('register') }}">Register</a>
+      </div>
+    </section>
+  {% endif %}
+</main>
+
+<footer class="site-footer wrap">
+  <small>Built with Flask.</small>
+</footer>
+</body>
+</html>

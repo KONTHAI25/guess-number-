@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Play • Guessing Game</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<header>
+  <h1>Play</h1>
+  <nav>
+    <a href="{{ url_for('index') }}">Home</a>
+    <a href="{{ url_for('leaderboard') }}">Leaderboard</a>
+    <a href="{{ url_for('chat') }}">Chat</a>
+    {% if session.get('user_id') %}<a href="{{ url_for('profile') }}">Profile</a>{% endif %}
+  </nav>
+</header>
+
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flash">
+        {% for cat, msg in messages %}
+          <li class="{{ cat }}">{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  {% if game %}
+    <section class="card">
+      <form action="{{ url_for('new_game', mode=game.mode) }}" method="post" style="margin-bottom: 1rem;">
+        <button type="submit">Restart Game</button>
+      </form>
+      <p>Mode: <strong>{{ game.mode|capitalize if game.mode else game['mode']|capitalize }}</strong> • Range: 1–{{ game.max_n if game.max_n else game['max_n'] }}</p>
+      <p>Attempts left: {{ game.attempts_left if game.attempts_left is not none else game['attempts_left'] }} /
+         {{ game.max_attempts if game.max_attempts else game['max_attempts'] }}</p>
+      <p>Score: {{ game.score if game.score is not none else game['score'] }}</p>
+
+      {% if game.status == 'playing' %}
+        <div class="game-control-buttons">
+          <form method="post">
+            <input type="hidden" name="action" value="guess">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+              <input class="guess-input" type="number" name="guess" min="1" max="{{ game.max_n }}" placeholder="Enter your number" required>
+              <button type="submit" 
+                      {% if game.score <= game.base_per_turn_penalty %}disabled title="Not enough points for another guess"{% endif %}>
+                Guess
+              </button>
+            </div>
+            {% if game.score <= game.base_per_turn_penalty %}
+              <p style="color: var(--warning); margin: 5px 0; font-size: 0.9rem;">
+                ⚠️ Not enough points for another guess (need at least {{ game.base_per_turn_penalty + 1 }})
+              </p>
+            {% endif %}
+          </form>
+          <form method="post">
+            <input type="hidden" name="action" value="hint">
+            <button type="submit"
+                    {% if game.hints_in_turn >= 2 or game.score <= (game.base_hint_penalty * (game.used_hints + 1)) %}disabled{% endif %}
+                    {% if game.hints_in_turn >= 2 %}title="Max 2 hints per turn"{% endif %}
+                    {% if game.score <= (game.base_hint_penalty * (game.used_hints + 1)) %}title="Not enough points for another hint"{% endif %}>
+              Get Hint (-{{ game.base_hint_penalty * (game.used_hints + 1) }} pts)
+            </button>
+          </form>
+          {% if game.hints_in_turn >= 2 %}
+            <p style="color: var(--warning); margin: 5px 0; font-size: 0.9rem;">
+              ⚠️ You've reached the limit of 2 hints per turn , Please make a guess first. 
+            </p>
+            
+          {% endif %}
+          {% if game.score <= (game.base_hint_penalty * (game.used_hints + 1)) %}
+            <p style="color: var(--warning); margin: 5px 0; font-size: 0.9rem;">
+              ⚠️ Not enough points for another hint (need at least {{ (game.base_hint_penalty * (game.used_hints + 1)) + 1 }})
+            </p>
+          {% endif %}
+        </div>
+      {% else %}
+        <p>Status: <strong>{{ game.status|upper }}</strong> • Secret: {{ game.secret }}</p>
+        <form action="{{ url_for('new_game') }}" method="post">
+          <label for="mode">New game mode:</label>
+          <select name="mode" id="mode">
+            <option value="easy" {% if game.mode=='easy' %}selected{% endif %}>Easy</option>
+            <option value="medium" {% if game.mode=='medium' %}selected{% endif %}>Medium</option>
+            <option value="hard" {% if game.mode=='hard' %}selected{% endif %}>Hard</option>
+          </select>
+          <button type="submit">Start New Game</button>
+        </form>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      <h3>Hints</h3>
+      {% if game.hints %}
+        <ul>
+          {% for h in game.hints %}
+            <li>{{ h }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No hints taken yet.</p>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      <h3>Guesses</h3>
+      {% if game.guesses %}
+        <p>
+          {% for g in game.guesses %}
+            <span class="badge">{{ g }}</span>
+          {% endfor %}
+        </p>
+      {% else %}
+        <p>No guesses yet.</p>
+      {% endif %}
+    </section>
+  {% endif %}
+</main>
+</body>
+</html>

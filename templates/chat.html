@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Chat Interface</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='chat.css') }}">
+  <style>
+    /* Customizable styling variables - can be modified by user */
+    :root {
+      --chat-bg-color: #0f172a;
+      --chat-font-size: 16px;
+      --chat-font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --chat-line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <h1 class="site-title">Chat Interface</h1>
+    <nav class="top-nav" aria-label="User menu">
+      {% if session.get('user_id') or session.get('is_guest') %}
+        <span class="player-label" style="display:inline-block; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+          Player:&nbsp;<strong>
+            {% if session.get('user_id') %}
+              {{ session.get('username') }}
+            {% else %}
+              {{ session.get('guest_name') }}
+            {% endif %}
+          </strong>
+        </span>
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('profile') }}">Profile</a>
+        <a href="{{ url_for('leaderboard') }}">Leaderboard</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+
+<main class="wrap main-content">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flash">
+        {% for cat, msg in messages %}
+          <li class="{{ cat }}">{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <section class="chat-container">
+    <div class="chat-header">
+      <h2>AI Chat</h2>
+      <div class="style-controls">
+        <button class="style-toggle" onclick="toggleStyleControls()">⚙️ Customize</button>
+      </div>
+    </div>
+    
+    <div class="style-panel" id="stylePanel" style="display: none;">
+      <h3>Customize Appearance</h3>
+      <div class="style-controls-grid">
+        <div class="control-group">
+          <label for="bgColor">Background Color:</label>
+          <input type="color" id="bgColor" value="#0f172a" onchange="updateStyles()">
+        </div>
+        <div class="control-group">
+          <label for="fontSize">Font Size:</label>
+          <input type="range" id="fontSize" min="12" max="24" value="16" onchange="updateStyles()">
+          <span id="fontSizeValue">16px</span>
+        </div>
+        <div class="control-group">
+          <label for="fontFamily">Font Family:</label>
+          <select id="fontFamily" onchange="updateStyles()">
+            <option value="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">System</option>
+            <option value="Arial, sans-serif">Arial</option>
+            <option value="'Times New Roman', serif">Times New Roman</option>
+            <option value="'Courier New', monospace">Courier New</option>
+            <option value="Georgia, serif">Georgia</option>
+            <option value="Verdana, sans-serif">Verdana</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="lineHeight">Line Spacing:</label>
+          <input type="range" id="lineHeight" min="1.2" max="2.0" step="0.1" value="1.5" onchange="updateStyles()">
+          <span id="lineHeightValue">1.5</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="message system-message">
+        <div class="message-content">Welcome to the chat! Type your message below.</div>
+        <div class="message-time">{{ momentjs().format('HH:mm') }}</div>
+      </div>
+    </div>
+
+    <div class="chat-input-container">
+      <form id="chatForm" class="chat-form">
+        <div class="input-group">
+          <input 
+            type="text" 
+            id="messageInput" 
+            class="chat-input" 
+            placeholder="Type your message here..." 
+            maxlength="500"
+            required
+          >
+          <button type="submit" class="send-button">Send</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer wrap">
+  <small>Built with Flask.</small>
+</footer>
+
+<script>
+// Chat functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const chatForm = document.getElementById('chatForm');
+    const messageInput = document.getElementById('messageInput');
+    const chatMessages = document.getElementById('chatMessages');
+
+    chatForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        // Add user message to chat
+        addMessage(message, 'user');
+        messageInput.value = '';
+
+        // Send message to API
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            
+            // Add AI response to chat
+            setTimeout(() => {
+                addMessage(data.response, 'ai');
+            }, 500);
+
+        } catch (error) {
+            console.error('Error:', error);
+            addMessage('Sorry, there was an error processing your message.', 'error');
+        }
+    });
+
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.textContent = text;
+        
+        const timeDiv = document.createElement('div');
+        timeDiv.className = 'message-time';
+        timeDiv.textContent = new Date().toLocaleTimeString();
+        
+        messageDiv.appendChild(contentDiv);
+        messageDiv.appendChild(timeDiv);
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+});
+
+// Style customization functions
+function toggleStyleControls() {
+    const panel = document.getElementById('stylePanel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+function updateStyles() {
+    const bgColor = document.getElementById('bgColor').value;
+    const fontSize = document.getElementById('fontSize').value;
+    const fontFamily = document.getElementById('fontFamily').value;
+    const lineHeight = document.getElementById('lineHeight').value;
+    
+    // Update CSS variables
+    document.documentElement.style.setProperty('--chat-bg-color', bgColor);
+    document.documentElement.style.setProperty('--chat-font-size', fontSize + 'px');
+    document.documentElement.style.setProperty('--chat-font-family', fontFamily);
+    document.documentElement.style.setProperty('--chat-line-height', lineHeight);
+    
+    // Update display values
+    document.getElementById('fontSizeValue').textContent = fontSize + 'px';
+    document.getElementById('lineHeightValue').textContent = lineHeight;
+    
+    // Save preferences to localStorage
+    localStorage.setItem('chatStyles', JSON.stringify({
+        bgColor: bgColor,
+        fontSize: fontSize,
+        fontFamily: fontFamily,
+        lineHeight: lineHeight
+    }));
+}
+
+// Load saved styles on page load
+window.addEventListener('DOMContentLoaded', function() {
+    const savedStyles = localStorage.getItem('chatStyles');
+    if (savedStyles) {
+        const styles = JSON.parse(savedStyles);
+        document.getElementById('bgColor').value = styles.bgColor;
+        document.getElementById('fontSize').value = styles.fontSize;
+        document.getElementById('fontFamily').value = styles.fontFamily;
+        document.getElementById('lineHeight').value = styles.lineHeight;
+        updateStyles();
+    }
+});
+</script>
+</body>
+</html>

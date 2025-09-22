@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Login • Guessing Game</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <h1 class="site-title">Login</h1>
+    <nav class="top-nav" aria-label="User menu">
+      <a href="{{ url_for('index') }}">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flash">
+        {% for cat, msg in messages %}
+          <li class="{{ cat }}">{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  
+  <section class="card-2">
+    <form method="post" class="mobile-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input id="username" name="username" required autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password" required autocomplete="current-password">
+      </div>
+      <div class="form-group">
+        <button type="submit" class="btn full-width">Login</button>
+      </div>
+    </form>
+
+    <p class="text-center">Or <a href="{{ url_for('guest') }}" class="guest-link">Play as Guest</a></p>
+  </section>
+</main>
+</body>
+</html>

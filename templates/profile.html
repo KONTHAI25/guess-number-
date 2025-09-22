@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Profile • Guessing Game</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Custom styles for the Profile page */
+    .table-container {
+      overflow-x: auto;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      margin-top: 1rem;
+      background-color: rgba(15, 23, 42, 0.3);
+    }
+    
+    .profile-games {
+      width: 100%;
+      min-width: 360px;
+      border-collapse: collapse;
+    }
+    
+    .profile-games th {
+      text-align: left;
+      background-color: rgba(15, 23, 42, 0.6);
+      padding: 0.9rem 0.8rem;
+      font-weight: 600;
+    }
+    
+    .profile-games td {
+      padding: 0.8rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      white-space: nowrap;
+    }
+    
+    /* Fixed first column */
+    .profile-games th:first-child,
+    .profile-games td:first-child {
+      position: sticky;
+      left: 0;
+      background: #111827;
+      z-index: 2;
+      min-width: 120px;
+    }
+    
+    /* Highlight the header separately */
+    .profile-games th:first-child {
+      z-index: 3;
+    }
+    
+    /* Hover effect */
+    .profile-games tbody tr:hover td {
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+    
+    .profile-games tr:last-child td {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <h1 class="site-title">Profile: {{ username }}</h1>
+    <nav class="top-nav" aria-label="User menu">
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="{{ url_for('leaderboard') }}">Leaderboard</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <h2>Your Stats</h2>
+    <ul class="profile-stats">
+      <li><span>Total games:</span> <strong>{{ stats['total_games'] or 0 }}</strong></li>
+      <li><span>Wins:</span> <strong>{{ stats['wins'] or 0 }}</strong></li>
+      <li><span>Best score:</span> <strong>{{ stats['best_score'] or 0 }}</strong></li>
+      <li><span>Average score:</span> <strong>{{ '%.1f' % stats['avg_score'] if stats['avg_score'] else 0 }}</strong></li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Recent Games</h2>
+    {% if games %}
+      <div class="table-container">
+        <table class="profile-games">
+          <thead>
+            <tr>
+              <th>Played</th>
+              <th>Mode</th>
+              <th>Score</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for g in games %}
+              <tr>
+                <td>{{ g['played_at'] }}</td>
+                <!-- Fixed mode display -->
+                <td>{{ g['mode']|capitalize }}</td>
+                <td>{{ g['score'] }}</td>
+                <td>{{ 'Win' if g['won'] else 'Loss' }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p>No games yet. </p>
+    {% endif %}
+  </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Leaderboard • Guessing Game</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <h1 class="site-title">Leaderboard</h1>
+    <nav class="top-nav" aria-label="User menu">
+      <a href="{{ url_for('index') }}">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="leaderboard-section">
+    <h2>Best Single-Game Scores</h2>
+    <div class="leaderboard-card">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th class="rank">#</th>
+              <th>Player</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in best %}
+            <tr>
+              <td class="rank">{{ loop.index }}</td>
+              <td class="player-name">{{ row['name']|truncate(18, True) }}</td>
+              <td class="player-score">{{ row['best_score'] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="leaderboard-section">
+    <h2>Total Wins</h2>
+    <div class="leaderboard-card">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th class="rank">#</th>
+              <th>Player</th>
+              <th>Wins</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in wins %}
+            <tr>
+              <td class="rank">{{ loop.index }}</td>
+              <td class="player-name">{{ row['name']|truncate(18, True) }}</td>
+              <td class="player-score">{{ row['wins'] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Enable horizontal scrolling on mobile
+  document.querySelectorAll('.table-container').forEach(container => {
+    container.addEventListener('touchstart', function(e) {
+      this.scrollLeft += e.touches[0].pageX;
+    }, false);
+  });
+</script>
+</body>
+</html>
