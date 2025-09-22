@@ -1,1 +1,1 @@
-*This is code of guess-game
+*This is code of guess-game*
